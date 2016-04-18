@@ -1,4 +1,6 @@
-﻿using MagicCellsProcessor.Entities.FieldParts;
+﻿using MagicCellsProcessor.Entities.Algorithms;
+using MagicCellsProcessor.Entities.Algorithms.MoveStrategies;
+using MagicCellsProcessor.Entities.FieldParts;
 using MagicCellsProcessor.Entities.utils;
 using System;
 using System.Collections.Generic;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MagicCellsProcessor.Entities.SpellParts
 {
-	public class TestSpellPart : ISpellPart
+	public class TestSpellPart 
 	{
 		public Cell CurrentCell
 		{
@@ -48,6 +50,10 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			{
 				return additionalParameters;
 			}
+			set
+			{
+				additionalParameters = value;
+			}
 		}
 
 		/// <summary>
@@ -69,7 +75,7 @@ namespace MagicCellsProcessor.Entities.SpellParts
 		/// <summary>
 		/// use only in GameProcessor!
 		/// </summary>
-		public ISpellPart NearestEnemy
+		public NearestEnemyInfo NearestEnemyInfo
 		{
 			get
 			{
@@ -79,6 +85,14 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			set
 			{
 				nearestEnemy = value;
+			}
+		}
+
+		public ISpellPartMoveStrategy MoveStrategy
+		{
+			get
+			{
+				return moveStrategy;
 			}
 		}
 
@@ -93,13 +107,15 @@ namespace MagicCellsProcessor.Entities.SpellParts
 
 		private int damage;
 
-		private AdditionalParametersStorage additionalParameters = new AdditionalParametersStorage();
+		private AdditionalParametersStorage additionalParameters;
 
 		private List<Action> spellOrderList;
 
 		private int indexToMove;
 
-		private ISpellPart nearestEnemy;
+		private NearestEnemyInfo nearestEnemy;
+
+		private ISpellPartMoveStrategy moveStrategy;
 
 		public TestSpellPart( Player owner, int hp, int damage )
 		{
@@ -108,6 +124,10 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			this.damage = damage;
 
 			spellOrderList = GetActionsOrderList();
+
+			additionalParameters = new AdditionalParametersStorage( AdditionalParametersDefaultValues.keysAndDefaults );
+
+			moveStrategy = MoveStrategyFactory.GetMoveStrategyForMe( this );
 		}
 
 		protected virtual List<Action> GetActionsOrderList()
@@ -119,14 +139,34 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			};
 		}
 
+		public void DoPremoveCalculations()
+		{
+			moveStrategy.DoCalculations( this );
+		}
+
+		public Cell ChooseCellToMove()
+		{
+			return moveStrategy.GetCellToMoveFor( this );
+		}
+
 		public void MoveTo( Cell destination )
 		{
+			if ( currentCell == destination )
+			{
+				Console.Write( "Fuck" );
+			}
+
 			destination.SetSpellPart( this );
 
 			if ( currentCell != null )
 				currentCell.RemoveSpellPart();
 
 			currentCell = destination;
+
+			if ( currentCell.SpellPart != this )
+			{
+				Console.Write( "Fuck" );
+			}
 		}
 
 		public void DoSelf()
@@ -137,9 +177,9 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			}
 		}
 
-		public List<ISpellPart> GetNeighborsSpellParts()
+		public List<TestSpellPart> GetNeighborsSpellParts()
 		{
-			var result = new List<ISpellPart>();
+			var result = new List<TestSpellPart>();
 			var neighbors = currentCell.GetNeighborsCells();
 
 			foreach ( var neighbor in neighbors )
@@ -149,9 +189,9 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			return result;
 		}
 
-		public List<ISpellPart> GetAlliedNeighborsSpellParts()
+		public List<TestSpellPart> GetAlliedNeighborsSpellParts()
 		{
-			var result = new List<ISpellPart>();
+			var result = new List<TestSpellPart>();
 			var neighbors = currentCell.GetNeighborsCells();
 
 			foreach ( var neighbor in neighbors )
@@ -161,9 +201,9 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			return result;
 		}
 
-		public List<ISpellPart> GetEnemyNeighborsSpellParts()
+		public List<TestSpellPart> GetEnemyNeighborsSpellParts()
 		{
-			var result = new List<ISpellPart>();
+			var result = new List<TestSpellPart>();
 			var neighbors = currentCell.GetNeighborsCells();
 
 			foreach ( var neighbor in neighbors )
@@ -210,7 +250,7 @@ namespace MagicCellsProcessor.Entities.SpellParts
 
 			weakestEnemy.TakeDamage( this.Damage );
 
-		} 
-		
+		}
+
 	}
 }

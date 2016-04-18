@@ -10,7 +10,7 @@ namespace MagicCellsProcessor.Entities
 {
 	public class Player
 	{
-		public List<ISpellPart> SpellParts
+		public List<TestSpellPart> SpellParts
 		{
 			get
 			{
@@ -18,7 +18,7 @@ namespace MagicCellsProcessor.Entities
 			}
 		}
 
-		public List<KeyValuePair<ISpellPart, Vector2>> SpellPartsAndPositions
+		public List<KeyValuePair<TestSpellPart, Vector2>> SpellPartsAndPositions
 		{
 			get
 			{
@@ -34,9 +34,9 @@ namespace MagicCellsProcessor.Entities
 			}
 		}
 
-		private List<ISpellPart> spellParts;
+		private List<TestSpellPart> spellParts;
 
-		private List<KeyValuePair<ISpellPart, Vector2>> spellPartsAndPositions;
+		private List<KeyValuePair<TestSpellPart, Vector2>> spellPartsAndPositions;
 
 		private int id;
 
@@ -44,10 +44,10 @@ namespace MagicCellsProcessor.Entities
 		{
 			this.id = id;
 
-			this.spellParts = new List<ISpellPart>();
+			this.spellParts = new List<TestSpellPart>();
 		}
 
-		public void InitSpellPartsAndPositions( List<KeyValuePair<ISpellPart, Vector2>> spellPartsAndPositions )
+		public void InitSpellPartsAndPositions( List<KeyValuePair<TestSpellPart, Vector2>> spellPartsAndPositions )
 		{
 			this.spellPartsAndPositions = spellPartsAndPositions;
 

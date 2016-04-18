@@ -66,7 +66,7 @@ namespace MagicCellsProcessor.Entities.Algorithms
 						paths[ neighbourIndex ][ cellIndex ] = cellIndex;
 					}
 
-					distances[ cellIndex ][ cellIndex ] = 0;
+					distances[ cellIndex ][ cellIndex ] = CellsConstants.CELL_WEIGHT_INFINITY;
 					
 				}
 

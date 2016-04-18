@@ -13,7 +13,7 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			{ typeof(TestSpellPart), new AdditionalParametersTestSettings() }
 		};
 
-		public static AdditionalParametersStorage GetAdditionalParametersForMe( ISpellPart spellPart )
+		public static AdditionalParametersStorage GetAdditionalParametersForMe( TestSpellPart spellPart )
 		{
 			return new AdditionalParametersStorage( typeSettingsMap[ spellPart.GetType() ].Parameters );
 		}
@@ -36,26 +36,51 @@ namespace MagicCellsProcessor.Entities.SpellParts
 				return new Dictionary<string, int>()
 				{
 					{ "damageReduction", 2 },
-					{ "hpRegeneration", 1 }
+					{ "hpRegeneration", 0 }
 				};
 			}
 		}
+	}
+
+	public static class AdditionalParametersDefaultValues
+	{
+		public static Dictionary<string, int> keysAndDefaults = new Dictionary<string, int>()
+		{
+			{ "damageReduction", 0 },
+			{ "hpRegeneration", 0 }
+		};
 	}
 
 	public class AdditionalParametersStorage
 	{
 		public Dictionary<string, int> parameters;
 
-		public AdditionalParametersStorage()
-		{
-			parameters = new Dictionary<string, int>();
-			foreach ( var key in new List<string>( parameters.Keys ) )
-				parameters[ key ] = 0;
-		}
+		//public AdditionalParametersStorage()
+		//{
+		//	parameters = new Dictionary<string, int>();
+		//	foreach ( var key in new List<string>( parameters.Keys ) )
+		//		parameters[ key ] = 0;
+		//}
 
 		public AdditionalParametersStorage( Dictionary<string, int> settings )
 		{
 			parameters = new Dictionary<string, int>( settings );
 		}
+
+		public void ResetValues()
+		{
+			foreach ( var key in new List<string>( parameters.Keys ) )
+				parameters[ key ] = 0;
+		}
+
+		public static AdditionalParametersStorage operator +( AdditionalParametersStorage s1, AdditionalParametersStorage s2 )
+		{
+			var result = new Dictionary<string, int>( s1.parameters );
+			foreach ( var param in new List<string>( s1.parameters.Keys ) )
+				result[ param ] = s1.parameters[ param ] + s2.parameters[ param ];
+
+			return new AdditionalParametersStorage( result );
+		}
+
 	}
 }

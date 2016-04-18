@@ -32,11 +32,11 @@ namespace MagicCellsProcessor.Entities.FieldParts
 		/// <summary>
 		/// all spell parts 
 		/// </summary>
-		public List<ISpellPart> AllSpellParts
+		public List<TestSpellPart> AllSpellParts
 		{
 			get
 			{
-				var allSpellParts = new List<ISpellPart>();
+				var allSpellParts = new List<TestSpellPart>();
 
 				foreach ( var player in players )
 				{
@@ -103,7 +103,7 @@ namespace MagicCellsProcessor.Entities.FieldParts
 			}
 		}
 
-		public ISpellPart GetSpellPartByIndex( int index )
+		public TestSpellPart GetSpellPartByIndex( int index )
 		{
 			var pos = Utils.ConvertOneIndexToVector2( index, Cells.Count );
 			var spellPart = Cells[ pos.x ][ pos.y ].SpellPart;

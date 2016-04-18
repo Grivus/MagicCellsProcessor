@@ -9,8 +9,8 @@ namespace MagicCellsProcessor.Entities.FieldParts
 {
 	public static class FieldConstants
 	{
-		public const int FIELD_SIZE_X = 100;
-		public const int FIELD_SIZE_Y = 100;
+		public const int FIELD_SIZE_X = 50;
+		public const int FIELD_SIZE_Y = 50;
 
 		public static List<Vector2> playersOffsetsOnField = new List<Vector2>() { new Vector2(0, 0),
 																				 new Vector2( 0, 0),

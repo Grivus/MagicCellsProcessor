@@ -36,14 +36,14 @@ namespace MagicCellsProcessor.Entities.FieldParts
 		/// <summary>
 		/// spell part in that cell
 		/// </summary>
-		public ISpellPart SpellPart
+		public TestSpellPart SpellPart
 		{
 			get
 			{
 				return spellPart;
 			}
 		}
-		private ISpellPart spellPart;
+		private TestSpellPart spellPart;
 
 		/// <summary>
 		/// weight for distance calculations
@@ -87,7 +87,7 @@ namespace MagicCellsProcessor.Entities.FieldParts
 		/// locates spellPart in that cell
 		/// </summary>
 		/// <param name="spellPart"> spell part to locate in that cell </param>
-		public void SetSpellPart( ISpellPart spellPart )
+		public void SetSpellPart( TestSpellPart spellPart )
 		{
 			this.spellPart = spellPart;
 		}
@@ -100,22 +100,46 @@ namespace MagicCellsProcessor.Entities.FieldParts
 			spellPart = null;
 		}
 
-		/// <summary>
-		/// 8 neighbors for middle cell, and so on
-		/// </summary>
-		/// <returns></returns>
-		public List<Cell> GetNeighborsCells()
+		public List<Cell> GetCrossNeighborsCells()
 		{
 			List<Cell> result = new List<Cell>();
 
 			int sizeX = field.Cells.Count;
 			int sizeY = field.Cells[ 0 ].Count;
-			
+
 			// left
 			if ( position.x >= 1 )
 			{
 				result.Add( field.Cells[ position.x - 1 ][ position.y ] );
 			}
+
+			// right
+			if ( position.x < sizeX - 1 )
+			{
+				result.Add( field.Cells[ position.x + 1 ][ position.y ] );
+			}
+
+			// top
+			if ( position.y >= 1 )
+			{
+				result.Add( field.Cells[ position.x ][ position.y - 1 ] );
+			}
+
+			// bottom
+			if ( position.y < sizeY - 1 )
+			{
+				result.Add( field.Cells[ position.x ][ position.y + 1 ] );
+			}
+
+			return result;
+		}
+
+		public List<Cell> GetDiagonalNeighborsCells()
+		{
+			List<Cell> result = new List<Cell>();
+
+			int sizeX = field.Cells.Count;
+			int sizeY = field.Cells[ 0 ].Count;
 
 			// left-bottom
 			if ( position.x >= 1 && position.y < sizeY - 1 )
@@ -129,12 +153,6 @@ namespace MagicCellsProcessor.Entities.FieldParts
 				result.Add( field.Cells[ position.x - 1 ][ position.y - 1 ] );
 			}
 
-			// right
-			if ( position.x < sizeX - 1 )
-			{
-				result.Add( field.Cells[ position.x + 1 ][ position.y ] );
-			}
-			
 			// right-top
 			if ( position.x < sizeX - 1 && position.y < sizeY - 1 )
 			{
@@ -147,19 +165,20 @@ namespace MagicCellsProcessor.Entities.FieldParts
 				result.Add( field.Cells[ position.x + 1 ][ position.y - 1 ] );
 			}
 
-			//top
-			if ( position.y >= 1 )
-			{
-				result.Add( field.Cells[ position.x ][ position.y - 1 ] );
-			}
+			return result;
+		}
 
-			//top
-			if ( position.y < sizeY - 1 )
-			{
-				result.Add( field.Cells[ position.x ][ position.y + 1 ] );
-			}
+		/// <summary>
+		/// 8 neighbors for middle cell, and so on
+		/// </summary>
+		/// <returns></returns>
+		public List<Cell> GetNeighborsCells()
+		{
+			List<Cell> result = new List<Cell>();
 
-
+			result.AddRange( GetCrossNeighborsCells() );
+			//result.AddRange( GetDiagonalNeighborsCells() );
+			 
 			return result;
 		}
 	}

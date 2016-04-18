@@ -34,5 +34,10 @@ namespace MagicCellsProcessor.Entities.utils
 		{
 			return new Vector2( index % count, index / count );
 		}
+
+		public static int GetDistance( Vector2 pos1, Vector2 pos2 )
+		{
+			return Math.Abs( pos2.x - pos1.x ) + Math.Abs( pos2.y - pos1.y );
+		}
 	}
 }

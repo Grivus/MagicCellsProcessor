@@ -1,4 +1,5 @@
-﻿using MagicCellsProcessor.Entities.FieldParts;
+﻿using MagicCellsProcessor.Entities.Algorithms;
+using MagicCellsProcessor.Entities.FieldParts;
 using MagicCellsProcessor.Entities.SpellParts;
 using MagicCellsProcessor.Entities.utils;
 using System;
@@ -7,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
 
 namespace MagicCellsProcessor.Entities
 {
@@ -22,6 +24,7 @@ namespace MagicCellsProcessor.Entities
 				CalculateDistances,
 				MoveCells,
 				CalculateImpacts,
+				SaveStep,
 				ProcessCells,
 				SaveStep
 			};
@@ -64,23 +67,29 @@ namespace MagicCellsProcessor.Entities
 
 		private void MoveCells()
 		{
-			var moveCompleteList = new List<ISpellPart>();
+			#region old
+			/*
+			var moveCompleteList = new List<TestSpellPart>();
+
+			// сортируем всё так, чтобы первыми двигались те, кто ближе к врагу
+			var allSpellPartsSorted = field.AllSpellParts;
+			allSpellPartsSorted.Sort( (sp1, sp2) => sp1.NearestEnemyInfo.distance.CompareTo( sp2.NearestEnemyInfo.distance ) );
 
 			// двигаем все клетки
-			foreach ( var spellPart in field.AllSpellParts )
+			foreach ( var spellPart in allSpellPartsSorted )
 			{
 				// если в радиусе клетки есть враг - двигаться никуда не надо, дерёмся
 				if ( spellPart.GetEnemyNeighborsSpellParts().Count != 0 )
 					continue;
 
-				// если туда ещё никто не пошёл, идём
-				if ( moveCompleteList.Find( x => x.IndexToMove == spellPart.IndexToMove ) == null )
+				// если туда ещё никто не пошёл и там никого нет, идём 
+				if ( moveCompleteList.Find( x => x.IndexToMove == spellPart.IndexToMove ) == null && field.GetCellByIndex( spellPart.IndexToMove ).SpellPart == null )
 				{
 					Cell destination = field.GetCellByIndex( spellPart.IndexToMove );
 					spellPart.MoveTo( destination );
 					moveCompleteList.Add( spellPart );
 				}
-				// если туда уже кто-то пошёл - танцы с бубном
+				// если туда уже кто-то пошёл или там кто-то есть - танцы с бубном
 				else
 				{
 					var neighborsCells = spellPart.CurrentCell.GetNeighborsCells();
@@ -90,12 +99,12 @@ namespace MagicCellsProcessor.Entities
 
 					foreach ( var neighborCell in neighborsCells )
 					{
-						int neigborIndex = Utils.ConvertVector2ToOne( spellPart.CurrentCell.Position, field.Cells.Count );
-						if ( distanceInfoStorage.distances[ neigborIndex ][ spellPart.NearestEnemy.CurrentCell.Index ] < minDistance && 
+						int neigborIndex = Utils.ConvertVector2ToOne( neighborCell.Position, field.Cells.Count );
+						if ( distanceInfoStorage.distances[ neigborIndex ][ spellPart.NearestEnemyInfo.nearestEnemy.CurrentCell.Index ] < minDistance && 
 							// если оттуда до цели можно дойти лучше чем есть сейчас 
 							 neighborCell.SpellPart == null )// и там нет клетки 
 						{
-							minDistance = distanceInfoStorage.distances[ neigborIndex ][ spellPart.NearestEnemy.CurrentCell.Index ];
+							minDistance = distanceInfoStorage.distances[ neigborIndex ][ spellPart.NearestEnemyInfo.nearestEnemy.CurrentCell.Index ];
 							indexToGo = neigborIndex;
 						}
 					}
@@ -111,11 +120,45 @@ namespace MagicCellsProcessor.Entities
 					moveCompleteList.Add( spellPart );
 				}
 			}
+			*/
+			#endregion
+
+			// сортируем всё так, чтобы первыми двигались те, кто ближе к врагу
+			var allSpellPartsSorted = field.AllSpellParts;
+			allSpellPartsSorted.Sort( ( sp1, sp2 ) => sp1.NearestEnemyInfo.distance.CompareTo( sp2.NearestEnemyInfo.distance ) );
+
+			// двигаем все клетки
+			foreach ( var spellPart in allSpellPartsSorted )
+			{
+				Cell destination = spellPart.ChooseCellToMove();
+
+				if ( destination != null )
+					spellPart.MoveTo( destination );
+			}
+			
+			// for test
+			foreach ( var spellPart in field.AllSpellParts )
+				if ( spellPart.CurrentCell.SpellPart != spellPart )
+					Console.WriteLine( "fuck" );
 		}
 
 		private void CalculateImpacts()
 		{
-			// TODO: implement me
+			// сначала мы очищаем все влияния, которые были
+			foreach ( var spellPart in field.AllSpellParts )
+			{
+				spellPart.AdditionalParameters.ResetValues();
+			}
+
+			// потом раздаём новые настройки влияний
+			foreach ( var spellPart in field.AllSpellParts )
+			{
+				var neighborsAllies = spellPart.GetAlliedNeighborsSpellParts();
+				foreach ( var ally in neighborsAllies )
+				{
+					ally.AdditionalParameters += AdditionalParametersFactory.GetAdditionalParametersForMe( spellPart );
+				}
+			}
 		}
 
 		private void ProcessCells()
@@ -138,7 +181,11 @@ namespace MagicCellsProcessor.Entities
 
 		private void CalculateDistances()
 		{
+			#region old
+			/*
 			distanceInfoStorage = Algorithms.FindAllPathsOnField.GetAllPaths( field );
+
+			Console.WriteLine( field.AllSpellParts.Count );
 
 			foreach ( var spellPart in field.AllSpellParts )
 			{
@@ -161,17 +208,29 @@ namespace MagicCellsProcessor.Entities
 						minDistance = distanceInfoStorage.distances[ myIndex ][ index ];
 						indexToMove = Algorithms.FindAllPathsOnField.GetFirstWayIndex( myIndex, index, distanceInfoStorage.paths );//distanceInfoStorage.paths[ myIndex ][ index ];
 
-						spellPart.NearestEnemy = field.GetSpellPartByIndex( index );
+						spellPart.NearestEnemyInfo = new NearestEnemyInfo( field.GetSpellPartByIndex( index ), minDistance );
 					}
 				}
 
 				spellPart.IndexToMove = indexToMove;
 			}
+			*/
+			#endregion
+
+			Console.WriteLine( field.AllSpellParts.Count );
+
+
+			foreach ( var spellPart in field.AllSpellParts )
+			{
+				spellPart.DoPremoveCalculations();
+			}
+
 		}
 
 		private void SaveBaseInfo()
 		{
-			StreamWriter wr = new StreamWriter( @"h:\cellsTest.txt", false);
+			var filename = ConfigurationManager.AppSettings[ "workFile" ];
+			StreamWriter wr = new StreamWriter( filename, false);
 			wr.WriteLine( field.Cells.Count );
 			wr.WriteLine( field.Cells.Count );
 			wr.Close();
@@ -179,14 +238,24 @@ namespace MagicCellsProcessor.Entities
 
 		private void SaveStep()
 		{
-			StreamWriter wr = new StreamWriter( @"h:\cellsTest.txt", true );
+			var filename = ConfigurationManager.AppSettings[ "workFile" ];
 
-			wr.WriteLine( field.AllSpellParts.Count );
+			StreamWriter wr = new StreamWriter( filename, true );
+
+			//wr.WriteLine();
+			//wr.WriteLine();
+			//wr.WriteLine();
+
+
+			wr.WriteLine( /*"SpellParts alive: " +*/ field.AllSpellParts.Count );
 
 			foreach ( var spellPart in field.AllSpellParts )
 			{
-				wr.WriteLine( spellPart.CurrentCell.Position.ToString() );
-				wr.WriteLine( spellPart.HealthPoints.CurrentHp );
+				wr.WriteLine( spellPart.PlayerOwner.Id );
+				wr.WriteLine( /*"position of cell: " +*/ spellPart.CurrentCell.Position );
+				wr.WriteLine( /*"hp of cell: " + */spellPart.HealthPoints.CurrentHp );
+				//wr.WriteLine();
+
 			}
 
 			wr.Close();
@@ -194,9 +263,11 @@ namespace MagicCellsProcessor.Entities
 
 		private void SaveEnd()
 		{
-			StreamWriter wr = new StreamWriter( @"h:\cellsTest.txt", true );
-			wr.WriteLine( "End" );
-			wr.Close();
+			//var winner = GetWinner();
+			//StreamWriter wr = new StreamWriter( @"h:\cellsTest.txt", true );
+			//wr.WriteLine( "Winner is " + ( (winner != null) ? " Player " + winner.Id.ToString() : "no one") );
+			//wr.WriteLine( "End" );
+			//wr.Close();
 		}
 
 		private bool CheckWin()
@@ -225,6 +296,14 @@ namespace MagicCellsProcessor.Entities
 			return result;
 		}
 
+		private Player GetWinner()
+		{
+			foreach ( var player in field.Players )
+				if ( player.SpellParts.Count != 0 )
+					return player;
+			return null;
+		}
+
 		public void Run( Field field )
 		{
 			this.field = field;
@@ -232,6 +311,7 @@ namespace MagicCellsProcessor.Entities
 			stepsCounter = 0;
 
 			SaveBaseInfo();
+			SaveStep();
 
 			do
 			{
