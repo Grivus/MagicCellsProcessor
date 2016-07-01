@@ -1,6 +1,7 @@
 ﻿using MagicCellsProcessor.Entities.Algorithms;
 using MagicCellsProcessor.Entities.Algorithms.MoveStrategies;
 using MagicCellsProcessor.Entities.FieldParts;
+using MagicCellsProcessor.Entities.Logging;
 using MagicCellsProcessor.Entities.utils;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,8 @@ namespace MagicCellsProcessor.Entities.SpellParts
 {
 	public class TestSpellPart 
 	{
+        private static int idGenerator = 0;
+
 		public Cell CurrentCell
 		{
 			get
@@ -96,7 +99,15 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			}
 		}
 
-		private Cell currentCell;
+        public int Id
+        {
+            get
+            {
+                return id;
+            }
+        }
+
+        private Cell currentCell;
 
 		/// <summary>
 		/// player owns spell part
@@ -117,8 +128,12 @@ namespace MagicCellsProcessor.Entities.SpellParts
 
 		private ISpellPartMoveStrategy moveStrategy;
 
+        private int id;
+
 		public TestSpellPart( Player owner, int hp, int damage )
 		{
+            id = idGenerator++;
+
 			player = owner;
 			this.healthPoints = new HealthPoints( hp );
 			this.damage = damage;
@@ -213,12 +228,19 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			return result;
 		}
 
+        public int GetReducedDamage( int damage )
+        {
+            if ( additionalParameters.parameters.ContainsKey( "damageReduction" ) )
+                damage = Utils.Clamp<int>( damage - additionalParameters.parameters[ "damageReduction" ], 0, damage );
+
+            return damage;
+        }
+
 		public void TakeDamage( int damage )
 		{
-			if ( additionalParameters.parameters.ContainsKey( "damageReduction" ) )
-				damage = Utils.Clamp<int>( damage - additionalParameters.parameters[ "damageReduction" ], 0, damage );
+            damage = GetReducedDamage( damage );
 
-			healthPoints.CurrentHp -= damage;
+            healthPoints.CurrentHp -= damage;
 		}
 
 		public void Die()
@@ -250,6 +272,8 @@ namespace MagicCellsProcessor.Entities.SpellParts
 
 			weakestEnemy.TakeDamage( this.Damage );
 
+            // log dealt damage
+            GameProcessor.Instance.Logger.LogAction( new ActionTypeDealDamage( Id, weakestEnemy.Id, weakestEnemy.GetReducedDamage( this.Damage ) ) );
 		}
 
 	}

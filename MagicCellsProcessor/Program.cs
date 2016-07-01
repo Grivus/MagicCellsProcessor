@@ -7,14 +7,42 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 
 namespace MagicCellsProcessor
 {
+    class MyTest
+    {
+        public List<int> list = new List<int>();
+        public int a = 2;
+
+        public string A
+        {
+            get
+            {
+                return "Aaaa";
+            }
+        }
+    }
+
 	class Program
 	{
 		static void Main( string[] args )
 		{
-			Player firstPlayer = new Player( 1 );
+
+            //MyTest test = new MyTest();
+            //test.list.Add( 2 );
+            //test.list.Add( 3 );
+
+            //List<MyTest> listTest = new List<MyTest>();
+            //listTest.Add( test );
+            //listTest.Add( new MyTest() );
+
+            //JavaScriptSerializer ser = new JavaScriptSerializer();
+            //Console.WriteLine( ser.Serialize( listTest ) );
+
+            //return;
+            Player firstPlayer = new Player( 1 );
 			firstPlayer.InitSpellPartsAndPositions( new List<KeyValuePair<TestSpellPart, Entities.utils.Vector2>>()
 			{
 				new KeyValuePair<Entities.SpellParts.TestSpellPart, Entities.utils.Vector2>(

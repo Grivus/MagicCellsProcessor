@@ -36,6 +36,7 @@
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -54,17 +55,23 @@
     <Compile Include="Entities\FieldParts\Field.cs" />
     <Compile Include="Entities\FieldParts\FieldConstants.cs" />
     <Compile Include="Entities\GameProcessor.cs" />
+    <Compile Include="Entities\Logging\ActionTypes.cs" />
+    <Compile Include="Entities\Logging\ILogPrinter.cs" />
+    <Compile Include="Entities\Logging\JsonGroupPrinter.cs" />
     <Compile Include="Entities\Player\Player.cs" />
     <Compile Include="Entities\SpellParts\AdditionalParameters.cs" />
     <Compile Include="Entities\SpellParts\HealthPoints.cs" />
     <Compile Include="Entities\SpellParts\TestSpellPart.cs" />
+    <Compile Include="Entities\Logging\Logger.cs" />
     <Compile Include="Entities\utils\Utils.cs" />
     <Compile Include="Entities\utils\Vector2.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

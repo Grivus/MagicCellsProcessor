@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
+using MagicCellsProcessor.Entities.Logging;
 
 namespace MagicCellsProcessor.Entities
 {
@@ -26,8 +27,11 @@ namespace MagicCellsProcessor.Entities
 				CalculateImpacts,
 				SaveStep,
 				ProcessCells,
-				SaveStep
+				SaveStep,
+                EndStep
 			};
+
+            printer = new JsonGroupPrinter();
 		}
 
 		public static GameProcessor Instance
@@ -55,7 +59,15 @@ namespace MagicCellsProcessor.Entities
 			}
 		}
 
-		private List<Action> actionsOrderList;
+        public Logger Logger
+        {
+            get
+            {
+                return logger;
+            }
+        }
+
+        private List<Action> actionsOrderList;
 
 		private Field field;
 
@@ -64,6 +76,10 @@ namespace MagicCellsProcessor.Entities
 		private int stepsCounter = 0;
 
 		private const int MAX_STEPS = 100000;
+
+        private Logger logger = new Logger();
+
+        private ILogPrinter printer;
 
 		private void MoveCells()
 		{
@@ -134,6 +150,9 @@ namespace MagicCellsProcessor.Entities
 
 				if ( destination != null )
 					spellPart.MoveTo( destination );
+
+                // log all alive spellparts
+                logger.LogSpellPart( spellPart.Id, spellPart.PlayerOwner.Id, spellPart.HealthPoints.CurrentHp, spellPart.CurrentCell.Position );
 			}
 			
 			// for test
@@ -174,6 +193,9 @@ namespace MagicCellsProcessor.Entities
 			{
 				if ( spellPart.HealthPoints.CurrentHp == 0 )
 				{
+                    // log death of the spellpart
+                    logger.LogAction( new ActionTypeDie( spellPart.Id ) );
+
 					spellPart.Die();
 				}
 			}
@@ -227,7 +249,14 @@ namespace MagicCellsProcessor.Entities
 
 		}
 
-		private void SaveBaseInfo()
+        private void EndStep()
+        {
+            logger.PrintState( printer );
+
+            logger.NextTurn();
+        }
+
+        private void SaveBaseInfo()
 		{
 			var filename = ConfigurationManager.AppSettings[ "workFile" ];
 			StreamWriter wr = new StreamWriter( filename, false);
@@ -238,36 +267,69 @@ namespace MagicCellsProcessor.Entities
 
 		private void SaveStep()
 		{
-			var filename = ConfigurationManager.AppSettings[ "workFile" ];
+            #region old save step
+            {
+                var filename = ConfigurationManager.AppSettings["workFile"];
 
-			StreamWriter wr = new StreamWriter( filename, true );
+                StreamWriter wr = new StreamWriter(filename, true);
 
-			//wr.WriteLine();
-			//wr.WriteLine();
-			//wr.WriteLine();
+                //wr.WriteLine();
+                //wr.WriteLine();
+                //wr.WriteLine();
 
 
-			wr.WriteLine( /*"SpellParts alive: " +*/ field.AllSpellParts.Count );
+                wr.WriteLine( /*"SpellParts alive: " +*/ field.AllSpellParts.Count);
 
-			foreach ( var spellPart in field.AllSpellParts )
-			{
-				wr.WriteLine( spellPart.PlayerOwner.Id );
-				wr.WriteLine( /*"position of cell: " +*/ spellPart.CurrentCell.Position );
-				wr.WriteLine( /*"hp of cell: " + */spellPart.HealthPoints.CurrentHp );
-				//wr.WriteLine();
+                foreach (var spellPart in field.AllSpellParts)
+                {
+                    wr.WriteLine(spellPart.PlayerOwner.Id);
+                    wr.WriteLine( /*"position of cell: " +*/ spellPart.CurrentCell.Position);
+                    wr.WriteLine( /*"hp of cell: " + */spellPart.HealthPoints.CurrentHp);
+                    //wr.WriteLine();
 
-			}
+                }
 
-			wr.Close();
-		}
+                wr.Close();
+            }
+            #endregion
 
-		private void SaveEnd()
+            //#region new save step
+            //{
+            //    var filename = ConfigurationManager.AppSettings["outputFileForPlayer"];
+
+            //    StreamWriter wr = new StreamWriter(filename, true);
+
+            //    //wr.WriteLine();
+            //    //wr.WriteLine();
+            //    //wr.WriteLine();
+
+
+            //    wr.WriteLine( /*"SpellParts alive: " +*/ field.AllSpellParts.Count);
+
+            //    foreach (var spellPart in field.AllSpellParts)
+            //    {
+            //        wr.WriteLine(spellPart.Id);
+            //        wr.WriteLine(spellPart.PlayerOwner.Id);
+            //        wr.WriteLine( /*"position of cell: " +*/ spellPart.CurrentCell.Position);
+            //        wr.WriteLine( /*"hp of cell: " + */spellPart.HealthPoints.CurrentHp);
+            //        //wr.WriteLine();
+
+            //    }
+
+            //    wr.Close();
+            //}
+            //#endregion
+        }
+
+        private void SaveEnd()
 		{
-			//var winner = GetWinner();
-			//StreamWriter wr = new StreamWriter( @"h:\cellsTest.txt", true );
-			//wr.WriteLine( "Winner is " + ( (winner != null) ? " Player " + winner.Id.ToString() : "no one") );
-			//wr.WriteLine( "End" );
-			//wr.Close();
+            //var winner = GetWinner();
+            //StreamWriter wr = new StreamWriter( @"h:\cellsTest.txt", true );
+            //wr.WriteLine( "Winner is " + ( (winner != null) ? " Player " + winner.Id.ToString() : "no one") );
+            //wr.WriteLine( "End" );
+            //wr.Close();
+
+            (printer as JsonGroupPrinter).PrintAll();
 		}
 
 		private bool CheckWin()
