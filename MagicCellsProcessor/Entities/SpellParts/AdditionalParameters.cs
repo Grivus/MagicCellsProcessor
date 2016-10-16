@@ -35,7 +35,7 @@ namespace MagicCellsProcessor.Entities.SpellParts
 			{
 				return new Dictionary<string, int>()
 				{
-					{ "damageReduction", 2 },
+					{ "damageReduction", 0 },
 					{ "hpRegeneration", 0 }
 				};
 			}

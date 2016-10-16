@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MagicCellsProcessor", "Magi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StepByStepResultViewer", "StepByStepResultViewer\StepByStepResultViewer.csproj", "{A168EE3D-4DFE-4B42-8451-1250E2006571}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CellsInputter", "CellsInputter\CellsInputter.csproj", "{621DBC9B-3221-48A1-9809-97278E189191}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A168EE3D-4DFE-4B42-8451-1250E2006571}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A168EE3D-4DFE-4B42-8451-1250E2006571}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A168EE3D-4DFE-4B42-8451-1250E2006571}.Release|Any CPU.Build.0 = Release|Any CPU
+		{621DBC9B-3221-48A1-9809-97278E189191}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{621DBC9B-3221-48A1-9809-97278E189191}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{621DBC9B-3221-48A1-9809-97278E189191}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{621DBC9B-3221-48A1-9809-97278E189191}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

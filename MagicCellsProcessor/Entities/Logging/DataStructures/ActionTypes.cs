@@ -25,7 +25,7 @@ namespace MagicCellsProcessor.Entities.Logging
         }
     }
 
-    public struct ActionTypeDealDamage : IActionType
+    public class ActionTypeDealDamage : IActionType
     {
         public int idFrom;
         public int idTo;
@@ -52,7 +52,7 @@ namespace MagicCellsProcessor.Entities.Logging
         }
     }
 
-    public struct ActionTypeDie : IActionType
+    public class ActionTypeDie : IActionType
     {
         public int id;
 

@@ -1,4 +1,5 @@
-﻿using MagicCellsProcessor.Entities.utils;
+﻿using MagicCellsProcessor.Entities.Logging.DataStructures;
+using MagicCellsProcessor.Entities.utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,58 +8,6 @@ using System.Threading.Tasks;
 
 namespace MagicCellsProcessor.Entities.Logging
 {
-    public struct SpellPartInfo
-    {
-        public Vector2 position;
-        public int playerId;
-        public int id;
-        public int hp;
-
-        public SpellPartInfo(int id, int playerId, int hp, Vector2 position)
-        {
-            this.id = id;
-            this.playerId = playerId;
-            this.hp = hp;
-            this.position = position;
-        }
-
-        public SpellPartInfo( SpellPartInfo info )
-        {
-            id = info.id;
-            playerId = info.playerId;
-            hp = info.hp;
-            position = info.position;
-        }
-    }
-
-    public class CurrentState
-    {
-        public List<SpellPartInfo> spellParts = new List<SpellPartInfo>();
-
-        public List<IActionType> actions = new List<IActionType>();
-
-        public CurrentState() { }
-
-        public CurrentState( CurrentState state )
-        {
-            spellParts.Clear();
-
-            foreach ( var spellPart in state.spellParts )
-                spellParts.Add( new SpellPartInfo( spellPart ) );
-
-            actions.Clear();
-
-            foreach ( var action in state.actions )
-                actions.Add( action.Copy() );
-        }
-
-        public void Clear()
-        {
-            spellParts.Clear();
-            actions.Clear();
-        }
-    }
-
     public class Logger
     {
         private CurrentState state = new CurrentState();

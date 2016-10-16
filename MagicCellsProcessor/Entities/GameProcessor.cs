@@ -75,7 +75,7 @@ namespace MagicCellsProcessor.Entities
 
 		private int stepsCounter = 0;
 
-		private const int MAX_STEPS = 100000;
+		private const int MAX_STEPS = 100;
 
         private Logger logger = new Logger();
 
@@ -142,6 +142,8 @@ namespace MagicCellsProcessor.Entities
 			// сортируем всё так, чтобы первыми двигались те, кто ближе к врагу
 			var allSpellPartsSorted = field.AllSpellParts;
 			allSpellPartsSorted.Sort( ( sp1, sp2 ) => sp1.NearestEnemyInfo.distance.CompareTo( sp2.NearestEnemyInfo.distance ) );
+			//allSpellPartsSorted.Sort( ( sp1, sp2 ) => sp1.PlayerOwner.Id.CompareTo( sp2.PlayerOwner.Id ) );
+
 
 			// двигаем все клетки
 			foreach ( var spellPart in allSpellPartsSorted )

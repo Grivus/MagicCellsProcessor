@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MagicCellsProcessor.Entities.Logging.DataStructures;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;

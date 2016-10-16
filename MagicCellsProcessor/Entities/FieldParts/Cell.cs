@@ -177,8 +177,8 @@ namespace MagicCellsProcessor.Entities.FieldParts
 			List<Cell> result = new List<Cell>();
 
 			result.AddRange( GetCrossNeighborsCells() );
-			//result.AddRange( GetDiagonalNeighborsCells() );
-			 
+			result.AddRange( GetDiagonalNeighborsCells() );
+
 			return result;
 		}
 	}
